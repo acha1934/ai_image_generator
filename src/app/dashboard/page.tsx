@@ -6,219 +6,110 @@ import { useRouter } from "next/navigation";
 
 export default function Dashboard() {
   const router = useRouter();
-
-  const [email, setEmail] =
-    useState("");
-
-  const [totalImages, setTotalImages] =
-    useState(0);
+  const [email, setEmail] = useState("");
+  const [totalImages, setTotalImages] = useState(0);
 
   useEffect(() => {
     const checkAuth = async () => {
-      const res =
-        await fetch("/api/me");
-
+      const res = await fetch("/api/me");
       if (!res.ok) {
         router.push("/login");
       }
     };
-
     checkAuth();
   }, [router]);
 
   useEffect(() => {
     const loadStats = async () => {
-      const res =
-        await fetch("/api/stats");
-
-      const data =
-        await res.json();
-
+      const res = await fetch("/api/stats");
+      const data = await res.json();
       setEmail(data.email);
-
-      setTotalImages(
-        data.totalImages
-      );
+      setTotalImages(data.totalImages);
     };
-
     loadStats();
   }, []);
+
+  const username = email ? email.split("@")[0] : "there";
 
   return (
     <>
       <Navbar />
 
-      <main
-        className="
-          min-h-screen
-          bg-slate-950
-          text-white
-          px-10
-          py-12
-        "
-      >
-        <div
-          className="
-            max-w-6xl
-            mx-auto
-          "
-        >
-          <h1
-            className="
-              text-5xl
-              font-bold
-              mb-3
-            "
-          >
-            Dashboard
-          </h1>
+      <main className="min-h-screen animated-bg grid-overlay text-white">
+        {/* Decorative orbs */}
+        <div className="fixed inset-0 overflow-hidden pointer-events-none">
+          <div className="float-orb absolute top-20 -left-32 w-72 h-72 bg-indigo-600/8 rounded-full blur-3xl" />
+          <div className="float-orb-delayed absolute top-40 -right-32 w-72 h-72 bg-purple-600/8 rounded-full blur-3xl" />
+        </div>
 
-          <p
-            className="
-              text-slate-400
-              text-lg
-              mb-10
-            "
-          >
-            Welcome back,
-            {" "}
-            <span
-              className="
-                text-white
-                font-medium
-              "
-            >
-              {email}
-            </span>
-          </p>
+        <div className="relative max-w-6xl mx-auto px-6 py-12">
+          {/* Header */}
+          <div className="mb-10">
+            <p className="text-indigo-400 text-sm font-medium mb-1">Welcome back 👋</p>
+            <h1 className="text-5xl font-extrabold tracking-tight">
+              <span className="gradient-text">{username}</span>
+            </h1>
+            <p className="text-slate-400 mt-2 text-base">{email}</p>
+          </div>
 
-          <div
-            className="
-              grid
-              grid-cols-1
-              md:grid-cols-3
-              gap-6
-            "
-          >
-            <div
-              className="
-                bg-slate-900
-                border
-                border-slate-800
-                rounded-2xl
-                p-6
-                shadow-lg
-              "
-            >
-              <h2
-                className="
-                  text-slate-400
-                  text-sm
-                  uppercase
-                  tracking-wide
-                "
-              >
-                Images Generated
-              </h2>
-
-              <p
-                className="
-                  text-5xl
-                  font-bold
-                  mt-3
-                "
-              >
-                {totalImages}
-              </p>
+          {/* Stats grid */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-8">
+            {/* Images generated stat */}
+            <div className="glass card-hover rounded-2xl p-6 shadow-xl">
+              <div className="flex items-center justify-between mb-4">
+                <span className="text-xs font-semibold text-slate-400 uppercase tracking-widest">Images Generated</span>
+                <div className="w-9 h-9 rounded-xl bg-indigo-500/15 flex items-center justify-center">
+                  <svg className="w-5 h-5 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                </div>
+              </div>
+              <p className="text-6xl font-black gradient-text">{totalImages}</p>
+              <p className="text-slate-500 text-xs mt-2">Total images created</p>
             </div>
 
-            <div
-              className="
-                bg-slate-900
-                border
-                border-slate-800
-                rounded-2xl
-                p-6
-                shadow-lg
-              "
-            >
-              <h2
-                className="
-                  text-slate-400
-                  text-sm
-                  uppercase
-                  tracking-wide
-                "
-              >
-                Account
-              </h2>
-
-              <p
-                className="
-                  text-lg
-                  mt-3
-                  break-all
-                "
-              >
-                {email}
-              </p>
+            {/* Account stat */}
+            <div className="glass card-hover rounded-2xl p-6 shadow-xl">
+              <div className="flex items-center justify-between mb-4">
+                <span className="text-xs font-semibold text-slate-400 uppercase tracking-widest">Account</span>
+                <div className="w-9 h-9 rounded-xl bg-purple-500/15 flex items-center justify-center">
+                  <svg className="w-5 h-5 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                  </svg>
+                </div>
+              </div>
+              <div className="flex items-center gap-2 mt-1">
+                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-xs font-bold">
+                  {username[0]?.toUpperCase()}
+                </div>
+                <p className="text-sm text-white break-all font-medium">{email}</p>
+              </div>
+              <div className="mt-3 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                <span className="text-emerald-400 text-xs font-medium">Active</span>
+              </div>
             </div>
 
-            <div
-              className="
-                bg-slate-900
-                border
-                border-slate-800
-                rounded-2xl
-                p-6
-                shadow-lg
-              "
-            >
-              <h2
-                className="
-                  text-slate-400
-                  text-sm
-                  uppercase
-                  tracking-wide
-                "
-              >
-                Quick Actions
-              </h2>
-
-              <div
-                className="
-                  flex
-                  flex-col
-                  gap-3
-                  mt-4
-                "
-              >
+            {/* Quick actions */}
+            <div className="glass card-hover rounded-2xl p-6 shadow-xl">
+              <div className="flex items-center justify-between mb-4">
+                <span className="text-xs font-semibold text-slate-400 uppercase tracking-widest">Quick Actions</span>
+                <div className="w-9 h-9 rounded-xl bg-sky-500/15 flex items-center justify-center">
+                  <svg className="w-5 h-5 text-sky-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                  </svg>
+                </div>
+              </div>
+              <div className="flex flex-col gap-3 mt-1">
                 <button
-                  onClick={() =>
-                    router.push("/")
-                  }
-                  className="
-                    bg-blue-600
-                    hover:bg-blue-700
-                    transition-colors
-                    py-2
-                    rounded-lg
-                  "
+                  onClick={() => router.push("/")}
+                  className="w-full py-2.5 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white text-sm font-semibold transition-all duration-200 shadow-lg shadow-indigo-500/20"
                 >
-                  Generate Image
+                  ✦ Generate Image
                 </button>
-
                 <button
-                  onClick={() =>
-                    router.push("/history")
-                  }
-                  className="
-                    bg-green-600
-                    hover:bg-green-700
-                    transition-colors
-                    py-2
-                    rounded-lg
-                  "
+                  onClick={() => router.push("/history")}
+                  className="w-full py-2.5 rounded-xl bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700/50 hover:border-slate-600 text-white text-sm font-medium transition-all duration-200"
                 >
                   View History
                 </button>
@@ -226,37 +117,28 @@ export default function Dashboard() {
             </div>
           </div>
 
-          <div
-            className="
-              mt-10
-              bg-slate-900
-              border
-              border-slate-800
-              rounded-2xl
-              p-8
-            "
-          >
-            <h2
-              className="
-                text-2xl
-                font-semibold
-                mb-3
-              "
-            >
-              AI Image Generator
-            </h2>
-
-            <p
-              className="
-                text-slate-400
-              "
-            >
-              Generate AI-powered images,
-              save them to your account,
-              download them, and manage
-              your image history from one
-              place.
-            </p>
+          {/* About section */}
+          <div className="glass rounded-2xl p-8 shadow-xl">
+            <div className="flex items-start gap-4">
+              <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center flex-shrink-0 shadow-lg shadow-indigo-500/20">
+                <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                </svg>
+              </div>
+              <div>
+                <h2 className="text-xl font-bold text-white mb-2">AI Image Generator</h2>
+                <p className="text-slate-400 text-sm leading-relaxed max-w-2xl">
+                  Generate AI-powered images from text prompts, save them to your account, download them anytime, and manage your entire image history — all from one place.
+                </p>
+                <div className="flex flex-wrap gap-2 mt-4">
+                  {["Text to Image", "Save to Account", "Download Anytime", "Manage History"].map((tag) => (
+                    <span key={tag} className="px-3 py-1 rounded-full bg-slate-800/80 border border-slate-700/50 text-slate-400 text-xs">
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </main>

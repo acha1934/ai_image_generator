@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+import { connectDB } from "@/lib/mongoose";
+import Image from "@/models/Image";
 import { cookies } from "next/headers";
 import { verifyToken } from "@/lib/auth";
 
@@ -9,115 +10,45 @@ export async function DELETE(
 ) {
   try {
     const cookieStore = await cookies();
-
-    const token =
-      cookieStore.get("token")?.value;
-
-    console.log("TOKEN:", token);
+    const token = cookieStore.get("token")?.value;
 
     if (!token) {
       return NextResponse.json(
-        {
-          success: false,
-          error: "No token found",
-        },
-        {
-          status: 401,
-        }
+        { success: false, error: "No token found" },
+        { status: 401 }
       );
     }
 
-    const decoded =
-      verifyToken(token) as {
-        userId: string;
-        email: string;
-      };
-
-    console.log("DECODED USER:", decoded);
+    const decoded = verifyToken(token) as { userId: string; email: string };
 
     const { id } = await params;
 
-    console.log("IMAGE ID:", id);
+    await connectDB();
 
-    const image =
-      await prisma.image.findUnique({
-        where: {
-          id,
-        },
-      });
-
-    console.log("IMAGE FOUND:", image);
+    const image = await Image.findById(id);
 
     if (!image) {
       return NextResponse.json(
-        {
-          success: false,
-          error: "Image not found",
-        },
-        {
-          status: 404,
-        }
+        { success: false, error: "Image not found" },
+        { status: 404 }
       );
     }
 
-    console.log(
-      "IMAGE USER:",
-      image.userId
-    );
-
-    console.log(
-      "TOKEN USER:",
-      decoded.userId
-    );
-
-    if (image.userId !== decoded.userId) {
-      console.log(
-        "UNAUTHORIZED DELETE ATTEMPT"
-      );
-
+    if (image.userId.toString() !== decoded.userId) {
       return NextResponse.json(
-        {
-          success: false,
-          error: "Unauthorized",
-        },
-        {
-          status: 403,
-        }
+        { success: false, error: "Unauthorized" },
+        { status: 403 }
       );
     }
 
-    console.log(
-      "DELETING IMAGE:",
-      id
-    );
+    await Image.findByIdAndDelete(id);
 
-    await prisma.image.delete({
-      where: {
-        id,
-      },
-    });
-
-    console.log(
-      "IMAGE DELETED SUCCESSFULLY"
-    );
-
-    return NextResponse.json({
-      success: true,
-    });
+    return NextResponse.json({ success: true });
   } catch (error) {
-    console.error(
-      "DELETE ERROR:",
-      error
-    );
-
+    console.error("DELETE ERROR:", error);
     return NextResponse.json(
-      {
-        success: false,
-        error: "Delete failed",
-      },
-      {
-        status: 500,
-      }
+      { success: false, error: "Delete failed" },
+      { status: 500 }
     );
   }
 }

@@ -1,38 +1,23 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+import { connectDB } from "@/lib/mongoose";
+import Image from "@/models/Image";
 import { cookies } from "next/headers";
 import { verifyToken } from "@/lib/auth";
 
 export async function GET() {
   try {
     const cookieStore = await cookies();
-
-    const token =
-      cookieStore.get("token")?.value;
+    const token = cookieStore.get("token")?.value;
 
     if (!token) {
-      return NextResponse.json(
-        {
-          success: false,
-        },
-        {
-          status: 401,
-        }
-      );
+      return NextResponse.json({ success: false }, { status: 401 });
     }
 
-    const decoded =
-      verifyToken(token) as {
-        userId: string;
-        email: string;
-      };
+    const decoded = verifyToken(token) as { userId: string; email: string };
 
-    const totalImages =
-      await prisma.image.count({
-        where: {
-          userId: decoded.userId,
-        },
-      });
+    await connectDB();
+
+    const totalImages = await Image.countDocuments({ userId: decoded.userId });
 
     return NextResponse.json({
       success: true,
@@ -41,14 +26,6 @@ export async function GET() {
     });
   } catch (error) {
     console.error(error);
-
-    return NextResponse.json(
-      {
-        success: false,
-      },
-      {
-        status: 500,
-      }
-    );
+    return NextResponse.json({ success: false }, { status: 500 });
   }
 }
