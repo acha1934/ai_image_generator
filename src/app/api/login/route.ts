@@ -1,3 +1,4 @@
+// DEPRECATED — use /api/auth/login instead
 import { NextResponse } from "next/server";
 import bcrypt from "bcrypt";
 import { connectDB } from "@/lib/mongoose";

@@ -4,28 +4,30 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
+const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+
 export default function RegisterPage() {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
 
   const handleRegister = async () => {
     setErrorMsg("");
     setLoading(true);
     try {
-      const response = await fetch("/api/register", {
+      const response = await fetch(`${API}/api/auth/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify({ email, password }),
       });
       const data = await response.json();
-      if (data.success) {
+      if (data.status === "success") {
         router.push("/dashboard");
       } else {
-        setErrorMsg(data.error);
+        setErrorMsg(data.message);
       }
     } catch (error) {
       console.error(error);

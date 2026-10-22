@@ -4,6 +4,8 @@ import Navbar from "@/components/navbar";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
+const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+
 export default function Dashboard() {
   const router = useRouter();
   const [email, setEmail] = useState("");
@@ -11,20 +13,18 @@ export default function Dashboard() {
 
   useEffect(() => {
     const checkAuth = async () => {
-      const res = await fetch("/api/me");
-      if (!res.ok) {
-        router.push("/login");
-      }
+      const res = await fetch(`${API}/api/auth/me`, { credentials: "include" });
+      if (!res.ok) router.push("/login");
     };
     checkAuth();
   }, [router]);
 
   useEffect(() => {
     const loadStats = async () => {
-      const res = await fetch("/api/stats");
+      const res = await fetch(`${API}/api/users/stats`, { credentials: "include" });
       const data = await res.json();
-      setEmail(data.email);
-      setTotalImages(data.totalImages);
+      setEmail(data.data?.email);
+      setTotalImages(data.data?.totalImages);
     };
     loadStats();
   }, []);
@@ -102,7 +102,7 @@ export default function Dashboard() {
               </div>
               <div className="flex flex-col gap-3 mt-1">
                 <button
-                  onClick={() => router.push("/")}
+                  onClick={() => router.push("/generate")}
                   className="w-full py-2.5 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white text-sm font-semibold transition-all duration-200 shadow-lg shadow-indigo-500/20"
                 >
                   ✦ Generate Image

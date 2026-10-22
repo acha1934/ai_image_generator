@@ -3,17 +3,17 @@
 import Navbar from "@/components/navbar";
 import { useEffect, useState } from "react";
 
+const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+
 export default function HistoryPage() {
   const [images, setImages] = useState<any[]>([]);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [selectedPrompt, setSelectedPrompt] = useState<string>("");
 
   useEffect(() => {
-    fetch("/api/history")
+    fetch(`${API}/api/images`, { credentials: "include" })
       .then((res) => res.json())
-      .then((data) => {
-        setImages(data.images ?? []);
-      });
+      .then((data) => setImages(data.data?.images ?? []));
   }, []);
 
   const downloadImage = (imageData: string, prompt: string) => {
@@ -26,7 +26,7 @@ export default function HistoryPage() {
   };
 
   const deleteImage = async (id: string) => {
-    await fetch(`/api/delete-image/${id}`, { method: "DELETE" });
+    await fetch(`${API}/api/images/${id}`, { method: "DELETE", credentials: "include" });
     setImages((prev) => prev.filter((image) => image.id !== id));
   };
 
